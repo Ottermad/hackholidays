@@ -1,14 +1,11 @@
 from flask import Blueprint, g, jsonify
-from flask.ext.httpauth import HTTPBasicAuth
 from flask.ext.bcrypt import check_password_hash
 from itsdangerous import (TimedJSONWebSignatureSerializer
                           as Serializer, BadSignature, SignatureExpired)
-from app import app
+from app import app, basicauth
 from .models import User
 
 auth_bp = Blueprint('auth_bp', __name__)
-
-auth = HTTPBasicAuth()
 
 
 def generate_auth_token(user, expiration=600):
@@ -31,7 +28,7 @@ def verify_auth_token(token):
         return None
 
 
-@auth.verify_password
+@basicauth.verify_password
 def verify_password(email_or_token, password):
     # first try to authenticate by token
     user = verify_auth_token(email_or_token)
@@ -48,7 +45,8 @@ def verify_password(email_or_token, password):
 
 
 @auth_bp.route('/token')
-@auth.login_required
+@basicauth.login_required
 def get_auth_token():
     token = generate_auth_token(g.user, 600)
+    print(token)
     return jsonify({'token': token.decode('ascii'), 'duration': 600})
