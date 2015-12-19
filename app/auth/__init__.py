@@ -1,4 +1,4 @@
-from flask import Blueprint, g, jsonify
+from flask import Blueprint, g, jsonify, request
 from flask.ext.bcrypt import check_password_hash
 from itsdangerous import (TimedJSONWebSignatureSerializer
                           as Serializer, BadSignature, SignatureExpired)
@@ -50,3 +50,15 @@ def get_auth_token():
     token = generate_auth_token(g.user, 600)
     print(token)
     return jsonify({'token': token.decode('ascii'), 'duration': 600})
+
+
+@auth_bp.route('/signup', methods=('POST', 'GET'))
+def signup():
+    try:
+        User.add_user(
+            email=request.form['email'],
+            password=request.form['password']
+        )
+        return jsonify({'success': True})
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)})
