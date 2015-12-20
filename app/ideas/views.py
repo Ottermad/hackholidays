@@ -40,7 +40,7 @@ def vote():
 @idea_bp.route('/next')
 @basicauth.login_required
 def next():
-    voted_on = [iv.id for iv in IdeaVotes.select().where(IdeaVotes.user == g.user.user_id)]
+    voted_on = [iv.idea for iv in IdeaVotes.select().where(IdeaVotes.user == g.user.user_id)]
     if len(voted_on) < 1:
         voted_on = [0]
     idea = Idea.select().where(Idea.id.not_in(voted_on)).limit(1)
